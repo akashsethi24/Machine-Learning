@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/movie_recommandation.iml" filepath="$PROJECT_DIR$/.idea/modules/movie_recommandation.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/movie_recommandation-build.iml" filepath="$PROJECT_DIR$/.idea/modules/movie_recommandation-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root.iml" filepath="$PROJECT_DIR$/.idea/modules/root.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-build.iml" filepath="$PROJECT_DIR$/.idea/modules/root-build.iml" />
     </modules>
   </component>
 </project>
