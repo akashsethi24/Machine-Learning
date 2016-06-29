@@ -37,13 +37,13 @@ object MovieLensALS {
       (fields(0).toInt, fields(1))
     }.collect.toMap
 
-    // your code here
-    val numRatings = ratings.count
-    val numUsers = ratings.map(_._2.user).distinct.count
-    val numMovies = ratings.map(_._2.product).distinct.count
+    /*    // your code here
+        val numRatings = ratings.count
+        val numUsers = ratings.map(_._2.user).distinct.count
+        val numMovies = ratings.map(_._2.product).distinct.count
 
-    println("Got " + numRatings + " ratings from "
-      + numUsers + " users on " + numMovies + " movies.")
+        println("Got " + numRatings + " ratings from "
+          + numUsers + " users on " + numMovies + " movies.")*/
 
     val mostRatedMovieIds = ratings.map(_._2.product) // extract movie ids
       .countByValue // count ratings per movie
