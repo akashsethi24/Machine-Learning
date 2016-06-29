@@ -7,8 +7,8 @@ import java.io.PrintWriter
   */
 object FileProcessing {
 
-  val directory = System.getProperty("user.dir")
-  val out = new PrintWriter(directory + "/src/main/resources/Data.txt", "UTF-8")
+  val directory = System.getProperty("user.dir") + "/src/main/resources"
+  val out = new PrintWriter(directory, "UTF-8")
 
   def cleanFile: Boolean = {
 
