@@ -1,3 +1,5 @@
+package movie
+
 import java.util.Scanner
 
 import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
