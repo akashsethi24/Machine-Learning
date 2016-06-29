@@ -1,0 +1,73 @@
+def preetyPrint(sunny: (Long, Long), overcast: (Long, Long), rain: (Long, Long), totalYes: Long, totalNo: Long): Unit = {
+    println("         Outlook")
+    println("         (Yes,No)")
+    println("Sunny    " + sunny)
+    println("OverCast " + overcast)
+    println("Rain     " + rain)
+    println("Total Yes for Play :- " + totalYes)
+    println("Total No For Play  :- " + totalNo)
+  }
+
+  def computeNaiveBayesMethod: Unit = {
+
+    val outlookObj = new Outlook
+    val tempObj = new Temp
+    val humidityObj = new Humidity
+    val windObj = new Wind
+    val sunny = outlookObj.getSunnyStatus
+    val overcast = outlookObj.getOvercastStatus
+    val rain = outlookObj.getRainStatus
+    val hot = tempObj.getHotStatus
+    val mild = tempObj.getMildStatus
+    val cool = tempObj.getCoolStatus
+    val high = humidityObj.getHighStatus
+    val normal = humidityObj.getNormalStatus
+    val weak = windObj.getWeakStatus
+    val strong = windObj.getStrongStatus
+    val totalYes = sunny._1 + overcast._1 + rain._1
+    val totalNo = sunny._1 + overcast._1 + rain._1
+    val total = totalYes + totalNo
+    val scanner = new Scanner(System.in)
+
+    println("Enter Overlook")
+    val ovutlook = scanner.next()
+    println("Enter Temp")
+    val temp = scanner.next()
+    println("Enter Humidity")
+    val humidity = scanner.next()
+    println("Enter Wind")
+    val wind = scanner.next()
+
+    val sunnyYes = sunny._1 / totalYes
+    val sunnyNo = sunny._2 / totalNo
+
+    val overCastYes = overcast._1 / totalYes
+    val overCastNo = overcast._2 / totalNo
+
+    val rainYes = rain._1 / totalYes
+    val rainNo = rain._2 / totalNo
+
+    val hotYes = hot._1 / totalYes
+    val hotNo = hot._2 / totalNo
+
+    val mildYes = mild._1 / totalYes
+    val mildNo = mild._2 / totalNo
+
+    val coolYes = cool._1 / totalYes
+    val coolNo = cool._2 / totalNo
+
+    val highYes = high._1 / totalYes
+    val highNo = high._2 / totalNo
+
+    val normalYes = normal._1 / totalYes
+    val normalNo = normal._2 / totalNo
+
+    val weakYes = weak._1 / totalYes
+    val weakNo = weak._2 / totalNo
+
+    val strongYes = strong._1 / totalYes
+    val strongNo = strong._2 / totalNo
+
+    val yesProb = totalYes / total
+    val noProb = totalNo / total
+  }
