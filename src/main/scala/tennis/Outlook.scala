@@ -12,7 +12,7 @@ class Outlook {
     val status = getSportRDD.filter(line => line.split(",")(2).toLowerCase.contains("sunny"))
       .map { line => line.split(",")(1)
       }
-    val yesCount = status.filter { word =>  word.toLowerCase.contains("yes") }.count()
+    val yesCount = status.filter { word => word.toLowerCase.contains("yes") }.count()
     (yesCount, status.count() - yesCount)
   }
 

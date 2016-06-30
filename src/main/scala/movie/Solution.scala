@@ -90,6 +90,7 @@ object MovieLensALS {
         bestLambda = lambda
         bestNumIter = numIter
       }
+
     }
 
     val testRmse = computeRmse(bestModel.get, test, numTest)

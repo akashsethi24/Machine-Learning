@@ -5,10 +5,10 @@ import java.io.PrintWriter
 /**
   * Created by akash on 29/6/16.
   */
-object FileProcessing {
+object FileProcessing extends App {
 
   val directory = System.getProperty("user.dir") + "/src/main/resources"
-  val out = new PrintWriter(directory, "UTF-8")
+  val out = new PrintWriter(directory + "/Data.txt", "UTF-8")
 
   def cleanFile: Boolean = {
 
@@ -53,4 +53,6 @@ object FileProcessing {
       case ex: Exception => false
     }
   }
+
+  cleanFile
 }
