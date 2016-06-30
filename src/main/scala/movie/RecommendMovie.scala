@@ -13,7 +13,7 @@ class RecommendMovie {
 
   val conf = new SparkConf().setAppName("Recommendation App").setMaster("local")
   val sc = new SparkContext(conf)
-  val directory = "/Data/ml-20m"
+  val directory = "/home/knoldus/ml-1m"
   val scanner = new Scanner(System.in)
   val numPartitions = 20
   val topTenMovies = getRatingFromUser
@@ -23,17 +23,17 @@ class RecommendMovie {
 
   def getRatingRDD: RDD[String] = {
 
-    sc.textFile(directory + "/ratings.csv")
+    sc.textFile(directory + "/ratings.dat")
   }
 
   def getMovieRDD: RDD[String] = {
 
-    sc.textFile(directory + "/movies.csv")
+    sc.textFile(directory + "/movies.dat")
   }
 
   def getRDDOfRating: RDD[(Long, Rating)] = {
 
-    getRatingRDD.map { line => val fields = line.split(",")
+    getRatingRDD.map { line => val fields = line.split("::")
 
       (fields(3).toLong % 10, Rating(fields(0).toInt, fields(1).toInt, fields(2).toDouble))
     }
@@ -41,7 +41,7 @@ class RecommendMovie {
 
   def getMoviesMap: Map[Int, String] = {
 
-    getMovieRDD.map { line => val fields = line.split(",")
+    getMovieRDD.map { line => val fields = line.split("::")
 
       (fields(0).toInt, fields(1))
     }.collect().toMap
@@ -67,7 +67,7 @@ class RecommendMovie {
     val listOFRating = getTopTenMovies.map { getRating => {
 
       println(s"Please Enter The Rating For Movie ${getRating._2} From 1 to 5 [0 if not Seen]")
-      Rating(10001, getRating._1, scanner.next().toLong)
+      Rating(0, getRating._1, scanner.next().toLong)
     }
     }
     sc.parallelize(listOFRating)
@@ -113,42 +113,42 @@ class RecommendMovie {
 
 object RecommendMovie extends App {
 
-  val obj = new RecommendMovie
-  val ranks = List(8, 12)
-  val lambdas = List(0.1, 10.0)
-  val numIters = List(10, 20)
-  var bestModel: Option[MatrixFactorizationModel] = None
-  var bestValidationRmse = Double.MaxValue
-  var bestRank = 0
-  var bestLambda = -1.0
-  var bestNumIter = -1
-  for (rank <- ranks; lambda <- lambdas; numIter <- numIters) {
-    val model = ALS.train(obj.getTrainingRating, rank, numIter, lambda)
-    val validationRmse: Double = obj.computeRmse(model, obj.getValidationRating, obj.numValidate)
+  val movieRecommendationHelper = new RecommendMovie
+  val sc = movieRecommendationHelper.sc
+  // Load and parse the data
+  val data = sc.textFile("/home/knoldus/ratings.dat")
+  val ratings = data.map(_.split("::") match { case Array(user, item, rate, timestamp) =>
+    Rating(user.toInt, item.toInt, rate.toDouble)
+  })
+  val movies = movieRecommendationHelper.getMovieRDD.map( _.split("::"))
+    .map { case Array(movieId,movieName,genre) => (movieId.toInt ,movieName) }
 
-    if (validationRmse < bestValidationRmse) {
-      bestModel = Some(model)
-      bestValidationRmse = validationRmse
-      bestRank = rank
-      bestLambda = lambda
-      bestNumIter = numIter
-    }
-  }
+  val myRatingsRDD = movieRecommendationHelper.topTenMovies
+  val training = ratings.filter { case Rating(userId, movieId, rating) => (userId * movieId) % 10 <= 3 }.persist
+  val test = ratings.filter { case Rating(userId, movieId, rating) => (userId * movieId) % 10 > 3}.persist
 
-  val myRatedMovieIds = obj.getRatingFromUser.map(_.product).collect().toSeq
-  val candidates = obj.sc.parallelize(obj.getMoviesMap.keys.filter(!myRatedMovieIds.contains(_)).toSeq)
-  val recommendations = bestModel.get
-    .predict(candidates.map((0, _)))
-    .collect
-    .sortBy(-_.rating)
-    .take(50)
 
-  var i = 1
-  println("Movies recommended for you:")
-  recommendations.foreach { r =>
-    println("%2d".format(i) + ": " + obj.getMoviesMap(r.product))
-    i += 1
-  }
+  val model = ALS.train(training.union(myRatingsRDD), 8, 10, 0.01)
 
-  obj.sc.stop()
+  val moviesIHaveSeen = myRatingsRDD.map(x => x.product).collect().toList
+
+  val moviesIHaveNotSeen = movies.filter { case (movieId, name) => !moviesIHaveSeen.contains(movieId) }.map( _._1)
+
+  val predictedRates =
+    model.predict(test.map { case Rating(user,item,rating) => (user,item)} ).map { case Rating(user, product, rate) =>
+      ((user, product), rate)
+    }.persist()
+
+  val ratesAndPreds = test.map { case Rating(user, product, rate) =>
+    ((user, product), rate)
+  }.join(predictedRates)
+
+  val MSE = ratesAndPreds.map { case ((user, product), (r1, r2)) => Math.pow((r1 - r2), 2) }.mean()
+
+  println("Mean Squared Error = " + MSE)
+
+  val recommendedMoviesId = model.predict(moviesIHaveNotSeen.map { product =>
+    (0, product)}).map { case Rating(user,movie,rating) => (movie,rating) }
+    .sortBy( x => x._2, ascending = false).take(20).map( x => x._1)
+  movieRecommendationHelper.sc.stop()
 }
