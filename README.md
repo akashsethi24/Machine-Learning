@@ -10,7 +10,7 @@ This Project Contains Example of 2 Machine Learning Algorithms.
       
       We are using the MovieLens Dataset to Recommend movie.
       User will be Asked for rating 15 movies on the Scale of 0 - 10.
-      If User havs not seen the movie he can give 0 as Score.
+      If User have not seen the movie he can give 0 as Score.
       Output will be the 50 movie Recommended to User.
 
 # Naive Bayes Algorithm
@@ -21,3 +21,5 @@ This Project Contains Example of 2 Machine Learning Algorithms.
       On the Basis of trained data we can give input TO Predict weather match will eb Played or Not.
       The output will be percentage of Possiblity.
       
+
+# We are using Scala version `2.11.7` and Apache Spark version `1.6.0`.
