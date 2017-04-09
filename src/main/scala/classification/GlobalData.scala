@@ -1,4 +1,4 @@
-package tennis
+package classification
 
 import java.util.Scanner
 

@@ -1,33 +1,33 @@
-package tennis
+package classification
 
 import GlobalData._
 
 /**
   * Created by akash on 29/6/16.
   */
-class Outlook {
+class Temp {
 
-  def getSunnyStatus: (Long, Long) = {
+  def getHotStatus: (Long, Long) = {
 
-    val status = getSportRDD.filter(line => line.split(",")(2).toLowerCase.contains("sunny"))
+    val status = getSportRDD.filter(line => line.split(",")(3).toLowerCase.contains("hot"))
       .map { line => line.split(",")(1)
       }
     val yesCount = status.filter { word => word.toLowerCase.contains("yes") }.count()
     (yesCount, status.count() - yesCount)
   }
 
-  def getOvercastStatus: (Long, Long) = {
+  def getMildStatus: (Long, Long) = {
 
-    val status = getSportRDD.filter(line => line.split(",")(2).toLowerCase.contains("overcast"))
+    val status = getSportRDD.filter(line => line.split(",")(3).toLowerCase.contains("mild"))
       .map { line => line.split(",")(1)
       }
     val yesCount = status.filter { word => word.toLowerCase.contains("yes") }.count()
     (yesCount, status.count() - yesCount)
   }
 
-  def getRainStatus: (Long, Long) = {
+  def getCoolStatus: (Long, Long) = {
 
-    val status = getSportRDD.filter(line => line.split(",")(2).toLowerCase.contains("rain"))
+    val status = getSportRDD.filter(line => line.split(",")(3).toLowerCase.contains("cool"))
       .map { line => line.split(",")(1)
       }
     val yesCount = status.filter { word => word.toLowerCase.contains("yes") }.count()

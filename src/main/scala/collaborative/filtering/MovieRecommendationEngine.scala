@@ -1,4 +1,4 @@
-package movie
+package collaborative.filtering
 
 import java.util.Scanner
 
@@ -7,13 +7,13 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
-  * Created by manish & akash on 29/6/16.
+  * Created by akash on 29/6/16.
   */
-class RecommendMovie {
+class MovieRecommendationEngine {
 
   val conf = new SparkConf().setAppName("Recommendation App").setMaster("local")
   val sc = new SparkContext(conf)
-  val directory = "/home/knoldus/ml-1m"
+  val directory = "src/main/resources"
   val scanner = new Scanner(System.in)
   val numPartitions = 20
   val topTenMovies = getRatingFromUser
@@ -23,17 +23,17 @@ class RecommendMovie {
 
   def getRatingRDD: RDD[String] = {
 
-    sc.textFile(directory + "/ratings.dat")
+    sc.textFile(directory + "/ratings.csv")
   }
 
   def getMovieRDD: RDD[String] = {
 
-    sc.textFile(directory + "/movies.dat")
+    sc.textFile(directory + "/movies.csv")
   }
 
   def getRDDOfRating: RDD[(Long, Rating)] = {
 
-    getRatingRDD.map { line => val fields = line.split("::")
+    getRatingRDD.map { line => val fields = line.split(",")
 
       (fields(3).toLong % 10, Rating(fields(0).toInt, fields(1).toInt, fields(2).toDouble))
     }
@@ -41,7 +41,7 @@ class RecommendMovie {
 
   def getMoviesMap: Map[Int, String] = {
 
-    getMovieRDD.map { line => val fields = line.split("::")
+    getMovieRDD.map { line => val fields = line.split(",")
 
       (fields(0).toInt, fields(1))
     }.collect().toMap
@@ -111,31 +111,33 @@ class RecommendMovie {
 
 }
 
-object RecommendMovie extends App {
+object MovieRecommendationEngine extends App {
 
-  val movieRecommendationHelper = new RecommendMovie
+  val movieRecommendationHelper = new MovieRecommendationEngine
   val sc = movieRecommendationHelper.sc
   // Load and parse the data
-  val data = sc.textFile("/home/knoldus/ratings.dat")
-  val ratings = data.map(_.split("::") match { case Array(user, item, rate, timestamp) =>
+  val data = sc.textFile("src/main/resources/ratings.csv")
+  val ratings = data.map(_.split(",") match { case Array(user, item, rate, timestamp) =>
     Rating(user.toInt, item.toInt, rate.toDouble)
   })
-  val movies = movieRecommendationHelper.getMovieRDD.map( _.split("::"))
-    .map { case Array(movieId,movieName,genre) => (movieId.toInt ,movieName) }
+  val movies = movieRecommendationHelper.getMovieRDD.map { str => val data = str.split(",")
+    (data(0), data(1))
+  }
+    .map { case (movieId, movieName) => (movieId.toInt, movieName) }
 
   val myRatingsRDD = movieRecommendationHelper.topTenMovies
   val training = ratings.filter { case Rating(userId, movieId, rating) => (userId * movieId) % 10 <= 3 }.persist
-  val test = ratings.filter { case Rating(userId, movieId, rating) => (userId * movieId) % 10 > 3}.persist
+  val test = ratings.filter { case Rating(userId, movieId, rating) => (userId * movieId) % 10 > 3 }.persist
 
 
   val model = ALS.train(training.union(myRatingsRDD), 8, 10, 0.01)
 
   val moviesIHaveSeen = myRatingsRDD.map(x => x.product).collect().toList
 
-  val moviesIHaveNotSeen = movies.filter { case (movieId, name) => !moviesIHaveSeen.contains(movieId) }.map( _._1)
+  val moviesIHaveNotSeen = movies.filter { case (movieId, name) => !moviesIHaveSeen.contains(movieId) }.map(_._1)
 
   val predictedRates =
-    model.predict(test.map { case Rating(user,item,rating) => (user,item)} ).map { case Rating(user, product, rate) =>
+    model.predict(test.map { case Rating(user, item, rating) => (user, item) }).map { case Rating(user, product, rate) =>
       ((user, product), rate)
     }.persist()
 
@@ -143,12 +145,19 @@ object RecommendMovie extends App {
     ((user, product), rate)
   }.join(predictedRates)
 
-  val MSE = ratesAndPreds.map { case ((user, product), (r1, r2)) => Math.pow((r1 - r2), 2) }.mean()
+  val MSE = ratesAndPreds.map { case ((user, product), (r1, r2)) => Math.pow(r1 - r2, 2) }.mean()
 
   println("Mean Squared Error = " + MSE)
 
   val recommendedMoviesId = model.predict(moviesIHaveNotSeen.map { product =>
-    (0, product)}).map { case Rating(user,movie,rating) => (movie,rating) }
-    .sortBy( x => x._2, ascending = false).take(20).map( x => x._1)
+    (0, product)
+  }).map { case Rating(user, movie, rating) => (movie, rating) }
+    .sortBy(x => x._2, ascending = false).take(20).map(x => x._1)
+
+  val recommendMovie = movieRecommendationHelper.getMovieRDD.map { str => val data = str.split(",")
+    (data(0).toInt, data(1))
+  }.filter { case (id, movie) => recommendedMoviesId.contains(id) }
+
+  recommendMovie.collect().toList.foreach(println)
   movieRecommendationHelper.sc.stop()
 }

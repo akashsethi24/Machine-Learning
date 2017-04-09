@@ -1,4 +1,4 @@
-package tennis
+package classification
 
 import GlobalData._
 

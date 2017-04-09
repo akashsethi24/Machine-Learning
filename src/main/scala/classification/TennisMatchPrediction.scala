@@ -1,4 +1,4 @@
-package tennis
+package classification
 
 import org.apache.spark.mllib.classification.{NaiveBayes, NaiveBayesModel}
 import org.apache.spark.mllib.linalg.Vectors
