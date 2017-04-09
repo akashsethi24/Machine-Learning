@@ -21,3 +21,4 @@ project/target/
 .scala_dependencies
 .worksheet
 .idea/*
+.idea
