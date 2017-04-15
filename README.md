@@ -6,12 +6,20 @@ This Project Contains Example of 2 Machine Learning Algorithms.
 
 # ALS [Alternative Least Squares] Algorithm
     
-    ALS Algorithm Example includes the implementation of Movie Recommendation Engine.
+    1. ALS Algorithm Example includes the implementation of Movie Recommendation Engine.
       
-      We are using the MovieLens Dataset to Recommend movie.
-      User will be Asked for rating 15 movies on the Scale of 0 - 10.
-      If User have not seen the movie he can give 0 as Score.
-      Output will be the 50 movie Recommended to User.
+       We are using the MovieLens Dataset to Recommend movie.
+       User will be Asked for rating 15 movies on the Scale of 0 - 10.
+       If User have not seen the movie he can give 0 as Score.
+       Output will be the 50 movie Recommended to User.
+       
+    2. ALS Algorithm Example includes the implementation of Music Recommendation Engine.
+      
+       We are using the Last.FM Dataset to Recommend Music.
+       Before running the Process Please Download the Dataset from `http://www-etud.iro.umontreal.ca/~bergstrj/audioscrobbler_data.html`.
+       Replace the File in `src/main/resources` file with Downloaded one.
+       Then run the process 
+    
 
 # Naive Bayes Algorithm
   
@@ -23,5 +31,3 @@ This Project Contains Example of 2 Machine Learning Algorithms.
       
 
 # We are using Scala version `2.11.8` and Apache Spark version `2.1.0`.
-
-Work in Progress For Music Recommendation Engine.
