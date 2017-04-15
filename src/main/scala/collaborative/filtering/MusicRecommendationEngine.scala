@@ -16,8 +16,12 @@ object MusicRecommendationEngine extends App {
   val rawArtistData = sc.textFile(directory + "/artist_data.txt")
   val artistById = rawArtistData.map { line =>
     val dataArray = line.split("\t")
-    (dataArray(0).trim.toInt, dataArray(1).trim)
-  }
+    try {
+      (dataArray(0).trim.toInt, dataArray(1).trim)
+    } catch {
+      case exception: Exception => (0, "")
+    }
+  }.filter(_._1 != 0)
   val rawArtistAlias = sc.textFile(directory + "/artist_alias.txt")
   val artistAlias = rawArtistAlias.flatMap { line =>
     val tokens = line.split('\t')
@@ -37,5 +41,7 @@ object MusicRecommendationEngine extends App {
   }.cache()
 
   val model = ALS.trainImplicit(trainData, 10, 5, 0.01, 1.0)
-  //In Progress
+  val recommendation = model.recommendProducts(1000002, 5)
+  val recommendedProducts = recommendation.map(_.product)
+  artistById.filter(tuple2 => recommendedProducts.contains(tuple2._1)).collect().toList.foreach(println)
 }
