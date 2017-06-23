@@ -29,5 +29,6 @@ This Project Contains Example of 2 Machine Learning Algorithms.
       On the Basis of trained data we can give input TO Predict weather match will eb Played or Not.
       The output will be percentage of Possiblity.
       
+# Work In progress for Classification
 
 # We are using Scala version `2.11.8` and Apache Spark version `2.1.0`.
