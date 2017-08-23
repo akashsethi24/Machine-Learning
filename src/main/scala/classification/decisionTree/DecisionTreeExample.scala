@@ -7,8 +7,8 @@ import org.apache.spark.mllib.tree.DecisionTree
 
 object DecisionTreeExample extends App {
 
-  val spam = sc.textFile("/home/akash/IdeaProjects/Machine-Learning/src/main/resources/ham/", 4)
-  val normal = sc.textFile("/home/akash/IdeaProjects/Machine-Learning/src/main/resources/spam/", 4)
+  val spam = sc.textFile("src/main/resources/ham/", 4)
+  val normal = sc.textFile("src/main/resources/spam/", 4)
   val tf = new HashingTF(numFeatures = 10000)
   val spamFeatures = spam.map(email => tf.transform(email.split(" ")))
   val normalFeatures = normal.map(email => tf.transform(email.split(" ")))
